@@ -11,7 +11,7 @@ import time
 # establish import context and then import explicitly 
 #from .context import gpt
 #from gpt.rules import rules as gpt_r
-from results import *
+from .results import *
 
 class TestResults(unittest.TestCase):
     

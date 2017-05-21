@@ -10,12 +10,13 @@ import datetime
 import time
 import numbers
 import os
-import ConfigParser
+import configparser
 import logging
+import collections
 try:
-        from cStringIO import StringIO
+        from io import StringIO
 except:
-        from StringIO import StringIO
+        from io import StringIO
 
 import pandas as pd
 import numpy as np
@@ -57,9 +58,9 @@ class GnipSearchCMD():
                 self.user = config_from_file.get('creds', 'un')
                 self.password = config_from_file.get('creds', 'pwd')
                 self.stream_url = config_from_file.get('endpoint', 'url')
-            except (ConfigParser.NoOptionError,
-                    ConfigParser.NoSectionError) as e:
-                logging.debug(u"Error reading configuration file ({}), ignoring configuration file.".format(e))
+            except (configparser.NoOptionError,
+                    configparser.NoSectionError) as e:
+                logging.debug("Error reading configuration file ({}), ignoring configuration file.".format(e))
         # parse the command line options
         self.options = self.args().parse_args()
         # set up the job
@@ -75,8 +76,8 @@ class GnipSearchCMD():
         if "data-api.twitter.com" in self.stream_url:
             self.options.search_v2 = True
         else:
-            logging.debug(u"Requires search v2, but your URL appears to point to a v1 endpoint. Exiting.")
-            print >> sys.stderr, "Requires search v2, but your URL appears to point to a v1 endpoint. Exiting."
+            logging.debug("Requires search v2, but your URL appears to point to a v1 endpoint. Exiting.")
+            print("Requires search v2, but your URL appears to point to a v1 endpoint. Exiting.", file=sys.stderr)
             sys.exit(-1)
         # defaults
         self.options.paged = True
@@ -85,7 +86,7 @@ class GnipSearchCMD():
         # check paths
         if self.options.output_file_path is not None:
             if not os.path.exists(self.options.output_file_path):
-                logging.debug(u"Path {} doesn't exist. Please create it and try again. Exiting.".format(
+                logging.debug("Path {} doesn't exist. Please create it and try again. Exiting.".format(
                     self.options.output_file_path))
                 sys.stderr.write("Path {} doesn't exist. Please create it and try again. Exiting.\n".format(
                     self.options.output_file_path))
@@ -94,15 +95,15 @@ class GnipSearchCMD():
         # log the attributes of this class including all of the options
         for v in dir(self):
             # except don't log the password!
-            if not v.startswith('__') and not callable(getattr(self,v)) and not v.lower().startswith('password'):
+            if not v.startswith('__') and not isinstance(getattr(self,v), collections.Callable) and not v.lower().startswith('password'):
                 tmp = str(getattr(self,v))
                 tmp = re.sub("password=.*,", "password=XXXXXXX,", tmp) 
-                logging.debug(u"  {}={}".format(v, tmp))
+                logging.debug("  {}={}".format(v, tmp))
         #
         self.job = self.read_job_description(self.options.job_description)
 
     def config_file(self):
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         # (1) default file name precidence
         config.read(DEFAULT_CONFIG_FILENAME)
         if not config.has_section("creds"):
@@ -160,7 +161,7 @@ class GnipSearchCMD():
         with codecs.open(job_description, "rb", "utf-8") as f:
             self.job_description = json.load(f)
         if not all([x in self.job_description for x in ("rules", "date_ranges")]):
-            print >>sys.stderr, '"rules" or "date_ranges" missing from you job description file. Exiting.\n'
+            print('"rules" or "date_ranges" missing from you job description file. Exiting.\n', file=sys.stderr)
             logging.error('"rules" or "date_ranges" missing from you job description file. Exiting')
             sys.exit(-1)
     
@@ -169,7 +170,7 @@ class GnipSearchCMD():
         for dates_dict in self.job_description["date_ranges"]:
             start_date = dates_dict["start"]
             end_date = dates_dict["end"]
-            logging.debug(u"getting date range for {} through {}".format(start_date, end_date))
+            logging.debug("getting date range for {} through {}".format(start_date, end_date))
             results = Results(
                 self.user
                 , self.password
@@ -207,13 +208,13 @@ class GnipSearchCMD():
         pdf.sort_values("All"
             , inplace=True
             , ascending=False)
-        logging.debug(u"pivot tables calculated with shape(df)={} and shape(pdf)={}".format(df.shape, pdf.shape))
+        logging.debug("pivot tables calculated with shape(df)={} and shape(pdf)={}".format(df.shape, pdf.shape))
         return df, pdf
 
     def write_output_files(self, df, pdf, pre=""):
         if pre != "":
             pre += "_"
-        logging.debug(u"Writing raw and pivot data to {}...".format(self.options.output_file_path))
+        logging.debug("Writing raw and pivot data to {}...".format(self.options.output_file_path))
         with open("{}/{}_{}raw_data.csv".format(
                     self.options.output_file_path
                     , datetime.datetime.now().strftime("%Y%m%d_%H%M")
@@ -237,8 +238,8 @@ class GnipSearchCMD():
         res = []
         for rule_dict in self.job_description["rules"]:
             # in the case that rule is compound, ensure grouping
-            rule = u"(" + rule_dict["value"] + u")" + negation_clause
-            logging.debug(u"rule str={}".format(rule))
+            rule = "(" + rule_dict["value"] + ")" + negation_clause
+            logging.debug("rule str={}".format(rule))
             all_rules.append(rule_dict["value"])
             tag = None
             if "tag" in rule_dict:
@@ -251,15 +252,15 @@ class GnipSearchCMD():
         # All rules 
         all_rules_res = []
         sub_all_rules = []
-        filter_str_last = u"(" + u" OR ".join(sub_all_rules) + u")"
+        filter_str_last = "(" + " OR ".join(sub_all_rules) + ")"
         for rule in all_rules:
             # try adding one more rule
             sub_all_rules.append(rule)
-            filter_str = u"(" + u" OR ".join(sub_all_rules) + u")"
+            filter_str = "(" + " OR ".join(sub_all_rules) + ")"
             if len(filter_str + negation_clause) > 2048:
                 # back up one rule if the length is too too long
                 filter_str = filter_str_last
-                logging.debug(u"All rules str={}".format(filter_str + negation_clause))
+                logging.debug("All rules str={}".format(filter_str + negation_clause))
                 all_rules_res = self.get_date_ranges_for_rule(
                     filter_str + negation_clause
                     , filter_str
@@ -267,7 +268,7 @@ class GnipSearchCMD():
                     )
                 # start a new sublist
                 sub_all_rules = [rule]
-                filter_str = u"(" + u" OR ".join(sub_all_rules) + u")"
+                filter_str = "(" + " OR ".join(sub_all_rules) + ")"
             filter_str_last = filter_str
         res.extend(all_rules_res)
         df, pdf = self.get_pivot_table(res)
@@ -283,10 +284,10 @@ class GnipSearchCMD():
             res = all_rules_res
             for i in range(int(self.options.rank_sample)):
                 if self.options.rank_negation_sample:
-                    filter_str = "((" + u") -(".join(rank_list[i+1::-1]) + "))"
+                    filter_str = "((" + ") -(".join(rank_list[i+1::-1]) + "))"
                 else:
-                    filter_str = "((" + u") OR (".join(rank_list[:i+1]) + "))"
-                logging.debug(u"rank rules str={}".format(filter_str + negation_clause))
+                    filter_str = "((" + ") OR (".join(rank_list[:i+1]) + "))"
+                logging.debug("rank rules str={}".format(filter_str + negation_clause))
                 res.extend(self.get_date_ranges_for_rule(
                     filter_str + negation_clause
                     , filter_str
@@ -301,8 +302,8 @@ if __name__ == "__main__":
     g = GnipSearchCMD()
     df, pdf, rdf, rpdf = g.get_result()
     sys.stdout.write(pdf.to_string())
-    print
-    print
+    print()
+    print()
     if rpdf is not None:
         sys.stdout.write(rpdf.to_string())
-        print
+        print()

@@ -344,10 +344,10 @@ if __name__ == "__main__":
     for x in g.get_activity_set():
         print(x)
     print(g)
-    print(g.get_rate())
+    print((g.get_rate()))
     g.execute("bieber", count_bucket = "hour")
     print(g)
-    print(len(g))
+    print((len(g)))
     pg = Query("shendrickson@gnip.com"
             , "XXXXXPASSWORDXXXXX"
             , "https://gnip-api.twitter.com/search/30day/accounts/shendrickson/wayback.json"

@@ -36,11 +36,12 @@ from search.results import *
 
 # fixes an annoying warning that scipy is throwing 
 import warnings
+import collections
 warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd driver lwork query error")
 
 # handle Python 3 specific imports
 if sys.version_info[0] == 2:
-    import ConfigParser
+    import configparser
 elif sys.version_info[0] == 3:
     import configparser as ConfigParser
     #from imp import reload
@@ -117,8 +118,8 @@ class GnipSearchTimeseries():
                 self.user = config_from_file.get('creds', 'un')
                 self.password = config_from_file.get('creds', 'pwd')
                 self.stream_url = config_from_file.get('endpoint', 'url')
-            except (ConfigParser.NoOptionError,
-                    ConfigParser.NoSectionError) as e:
+            except (configparser.NoOptionError,
+                    configparser.NoSectionError) as e:
                 logging.warn("Error reading configuration file ({}), ignoring configuration file.".format(e))
         # parse the command line options
         self.options = self.args().parse_args()
@@ -168,14 +169,14 @@ class GnipSearchTimeseries():
         # log the attributes of this class including all of the options
         for v in dir(self):
             # except don't log the password!
-            if not v.startswith('__') and not callable(getattr(self,v)) and not v.lower().startswith('password'):
+            if not v.startswith('__') and not isinstance(getattr(self,v), collections.Callable) and not v.lower().startswith('password'):
                 tmp = str(getattr(self,v))
                 tmp = re.sub("password=.*,", "password=XXXXXXX,", tmp) 
                 logging.debug("  {}={}".format(v, tmp))
 
     def config_file(self):
         """Search for a valid config file in the standard locations."""
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         # (1) default file name precidence
         config.read(DEFAULT_CONFIG_FILENAME)
         logging.info("attempting to read config file {}".format(DEFAULT_CONFIG_FILENAME))

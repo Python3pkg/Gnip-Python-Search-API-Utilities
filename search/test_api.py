@@ -9,7 +9,7 @@ import os
 # establish import context and then import explicitly 
 #from .context import gpt
 #from gpt.rules import rules as gpt_r
-from api import *
+from .api import *
 
 class TestQuery(unittest.TestCase):
     
@@ -91,7 +91,7 @@ class TestQuery(unittest.TestCase):
         tmp_end = datetime.datetime.strftime(
                     datetime.datetime.now() 
                     ,"%Y-%m-%dT%H:%M:%S")
-        print >> sys.stderr, "bieber from ", tmp_start, " to ", tmp_end
+        print("bieber from ", tmp_start, " to ", tmp_end, file=sys.stderr)
         self.g_paged.execute("bieber"
                 , start = tmp_start
                 , end = tmp_end)

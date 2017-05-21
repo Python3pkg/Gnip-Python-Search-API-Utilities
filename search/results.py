@@ -133,7 +133,7 @@ class Results():
 
     def __repr__(self):
         if self.last_query_params["count_bucket"] is None:
-            res = [u"-"*OUTPUT_PAGE_WIDTH]
+            res = ["-"*OUTPUT_PAGE_WIDTH]
             rate = self.query.get_rate()
             unit = "Tweets/Minute"
             if rate < 0.01:
@@ -147,35 +147,35 @@ class Results():
             res.append("-"*OUTPUT_PAGE_WIDTH)
             #
             self.query.get_top_users()
-            fmt_str = u"%{}s -- %10s     %8s (%d)".format(BIG_COLUMN_WIDTH)
+            fmt_str = "%{}s -- %10s     %8s (%d)".format(BIG_COLUMN_WIDTH)
             res.append(fmt_str%( "users", "tweets", "activities", self.res_cnt))
             res.append("-"*OUTPUT_PAGE_WIDTH)
-            fmt_str =  u"%{}s -- %4d  %5.2f%% %4d  %5.2f%%".format(BIG_COLUMN_WIDTH)
+            fmt_str =  "%{}s -- %4d  %5.2f%% %4d  %5.2f%%".format(BIG_COLUMN_WIDTH)
             for x in self.freq.get_tokens(20):
                 res.append(fmt_str%(x[4], x[0], x[1]*100., x[2], x[3]*100.))
             res.append("-"*OUTPUT_PAGE_WIDTH)
             #
             self.query.get_top_links()
-            fmt_str = u"%{}s -- %10s     %8s (%d)".format(int(2.5*BIG_COLUMN_WIDTH))
+            fmt_str = "%{}s -- %10s     %8s (%d)".format(int(2.5*BIG_COLUMN_WIDTH))
             res.append(fmt_str%( "links", "mentions", "activities", self.res_cnt))
             res.append("-"*OUTPUT_PAGE_WIDTH)
-            fmt_str =  u"%{}s -- %4d  %5.2f%% %4d  %5.2f%%".format(int(2.5*BIG_COLUMN_WIDTH))
+            fmt_str =  "%{}s -- %4d  %5.2f%% %4d  %5.2f%%".format(int(2.5*BIG_COLUMN_WIDTH))
             for x in self.freq.get_tokens(20):
                 res.append(fmt_str%(x[4], x[0], x[1]*100., x[2], x[3]*100.))
             res.append("-"*OUTPUT_PAGE_WIDTH)
             #
             self.query.get_top_grams()
-            fmt_str = u"%{}s -- %10s     %8s (%d)".format(BIG_COLUMN_WIDTH)
+            fmt_str = "%{}s -- %10s     %8s (%d)".format(BIG_COLUMN_WIDTH)
             res.append(fmt_str%( "terms", "mentions", "activities", self.res_cnt))
             res.append("-"*OUTPUT_PAGE_WIDTH)
-            fmt_str =u"%{}s -- %4d  %5.2f%% %4d  %6.2f%%".format(BIG_COLUMN_WIDTH)
+            fmt_str ="%{}s -- %4d  %5.2f%% %4d  %6.2f%%".format(BIG_COLUMN_WIDTH)
             for x in self.freq.get_tokens(20):
                 res.append(fmt_str%(x[4], x[0], x[1]*100., x[2], x[3]*100.))
             res.append("-"*OUTPUT_PAGE_WIDTH)
         else:
             res = ["{:%Y-%m-%dT%H:%M:%S},{}".format(x[2], x[1])
                         for x in self.get_time_series()]
-        return u"\n".join(res)
+        return "\n".join(res)
 
 if __name__ == "__main__":
     g = Results("shendrickson@gnip.com"
@@ -183,13 +183,13 @@ if __name__ == "__main__":
             , "https://gnip-api.twitter.com/search/30day/accounts/shendrickson/wayback.json")
     #list(g.get_time_series(pt_filter="bieber", count_bucket="hour"))
     print(g)
-    print( list(g.get_activities(pt_filter="bieber", max_results = 10)) )
-    print( list(g.get_geo(pt_filter = "bieber has:geo", max_results = 10)) )
-    print( list(g.get_time_series(pt_filter="beiber", count_bucket="hour")) )
-    print( list(g.get_top_links(pt_filter="beiber", max_results=100, n=30)) )
-    print( list(g.get_top_users(pt_filter="beiber", max_results=100, n=30)) )
-    print( list(g.get_top_grams(pt_filter="bieber", max_results=100, n=50)) )
-    print( list(g.get_frequency_items(10)) )
+    print(( list(g.get_activities(pt_filter="bieber", max_results = 10)) ))
+    print(( list(g.get_geo(pt_filter = "bieber has:geo", max_results = 10)) ))
+    print(( list(g.get_time_series(pt_filter="beiber", count_bucket="hour")) ))
+    print(( list(g.get_top_links(pt_filter="beiber", max_results=100, n=30)) ))
+    print(( list(g.get_top_users(pt_filter="beiber", max_results=100, n=30)) ))
+    print(( list(g.get_top_grams(pt_filter="bieber", max_results=100, n=50)) ))
+    print(( list(g.get_frequency_items(10)) ))
     print(g)
-    print(g.get_rate())
+    print((g.get_rate()))
     g.execute(pt_filter="bieber", query=True)

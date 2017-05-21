@@ -11,7 +11,7 @@ import time
 import os
 
 if sys.version_info.major == 2:
-    import ConfigParser as configparser
+    import configparser as configparser
 else:
     import configparser
 
@@ -136,7 +136,7 @@ class GnipSearchCMD():
     def get_result(self):
         WIDTH = 80
         BIG_COLUMN = 32
-        res = [u"-"*WIDTH]
+        res = ["-"*WIDTH]
         if self.options.use_case.startswith("time"):
             self.results = Results(
                 self.user
@@ -194,7 +194,7 @@ class GnipSearchCMD():
                         try:
                             res.append("{},{},{},{}".format(x["id"], x["postedTime"], x["longitude"], x["latitude"]))
                         except KeyError as e:
-                            print >> sys.stderr, str(e)
+                            print(str(e), file=sys.stderr)
                     else:
                         res.append(json.dumps(x))
             elif self.options.use_case.startswith("json"):
@@ -202,36 +202,36 @@ class GnipSearchCMD():
                 if self.options.csv_flag:
                     res = ["|".join(x) for x in self.results.query.get_list_set()]
             elif self.options.use_case.startswith("word"):
-                fmt_str = u"%{}s -- %10s     %8s ".format(BIG_COLUMN)
+                fmt_str = "%{}s -- %10s     %8s ".format(BIG_COLUMN)
                 res.append(fmt_str%( "terms", "mentions", "activities"))
                 res.append("-"*WIDTH)
-                fmt_str =  u"%{}s -- %4d  %5.2f%% %4d  %5.2f%%".format(BIG_COLUMN)
+                fmt_str =  "%{}s -- %4d  %5.2f%% %4d  %5.2f%%".format(BIG_COLUMN)
                 for x in self.results.get_top_grams(n=self.token_list_size):
                     res.append(fmt_str%(x[4], x[0], x[1]*100., x[2], x[3]*100.))
                 res.append("    TOTAL: %d activities"%len(self.results))
                 res.append("-"*WIDTH)
             elif self.options.use_case.startswith("user"):
-                fmt_str = u"%{}s -- %10s     %8s ".format(BIG_COLUMN)
+                fmt_str = "%{}s -- %10s     %8s ".format(BIG_COLUMN)
                 res.append(fmt_str%( "terms", "mentions", "activities"))
                 res.append("-"*WIDTH)
-                fmt_str =  u"%{}s -- %4d  %5.2f%% %4d  %5.2f%%".format(BIG_COLUMN)
+                fmt_str =  "%{}s -- %4d  %5.2f%% %4d  %5.2f%%".format(BIG_COLUMN)
                 for x in self.results.get_top_users(n=self.token_list_size):
                     res.append(fmt_str%(x[4], x[0], x[1]*100., x[2], x[3]*100.))
                 res.append("    TOTAL: %d activities"%len(self.results))
                 res.append("-"*WIDTH)
             elif self.options.use_case.startswith("link"):
-                res[-1]+=u"-"*WIDTH
-                res.append(u"%100s -- %10s     %8s (%d)"%("links", "mentions", "activities", len(self.results)))
+                res[-1]+="-"*WIDTH
+                res.append("%100s -- %10s     %8s (%d)"%("links", "mentions", "activities", len(self.results)))
                 res.append("-"*2*WIDTH)
                 for x in self.results.get_top_links(n=self.token_list_size):
-                    res.append(u"%100s -- %4d  %5.2f%% %4d  %5.2f%%"%(x[4], x[0], x[1]*100., x[2], x[3]*100.))
+                    res.append("%100s -- %4d  %5.2f%% %4d  %5.2f%%"%(x[4], x[0], x[1]*100., x[2], x[3]*100.))
                 res.append("-"*WIDTH)
             elif self.options.use_case.startswith("audie"):
                 for x in self.results.get_users():
-                    res.append(u"{}".format(x))
+                    res.append("{}".format(x))
                 res.append("-"*WIDTH)
-        return u"\n".join(res)
+        return "\n".join(res)
 
 if __name__ == "__main__":
     g = GnipSearchCMD()
-    print(g.get_result())
+    print((g.get_result()))
